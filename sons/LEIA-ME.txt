@@ -1,0 +1,14 @@
+Coloque aqui arquivos de som (.mp3, .ogg ou .wav) para substituir os sons gerados pelo jogo.
+
+Depois, abra js/config.js e, na parte "sons", escreva o nome do arquivo na chave certa. Exemplo:
+
+    grito: { arquivos: ['sons/grito.mp3'], volume: 1.0, variacao: 0.00 },
+    item:  { arquivos: ['sons/pop1.ogg', 'sons/pop2.ogg', 'sons/pop3.ogg'], volume: 0.7, variacao: 0.10 },
+
+Com vários arquivos, o jogo sorteia um a cada vez e ainda muda levemente o tom (variacao),
+então cada clique soa um pouquinho diferente.
+
+Sites com sons gratuitos: freesound.org, pixabay.com/sound-effects, zapsplat.com
+
+Obs.: arquivos de som só tocam com o jogo hospedado (GitHub Pages ou iniciar-windows.bat).
+Abrindo o index.html direto do disco, o jogo usa os sons gerados.

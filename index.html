@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cuide da Guima :)</title>
+<meta name="theme-color" content="#140d18">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Caveat:wght@700&family=Nunito:ital,wght@0,600;0,700;0,800;0,900;1,800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/estilo.css?v=3">
+<link rel="preload" as="image" href="assets/rostos/rosto.webp?v=3">
+<link rel="preload" as="image" href="assets/rostos/rosto_normal_serio.webp?v=3">
+
+</head>
+<body>
+<div id="palco"><canvas id="tela"></canvas><canvas id="tela2d" hidden></canvas></div>
+
+<!-- LOBBY -->
+<section id="lobby">
+  <div class="cartao">
+    <p class="sobre">jogo para dois</p>
+    <h1>Cuide da<br>Guima <span>:)</span></h1>
+    <p class="intro">Ela só quer ficar feliz. Vocês dois cuidam dela ao mesmo tempo — não tem vez de ninguém.</p>
+
+    <div id="etapaEntrar">
+      <label for="nome">seu nome</label>
+      <input id="nome" maxlength="20" autocomplete="nickname" placeholder="ex.: Problems">
+      <button id="criar" class="principal">criar sala</button>
+      <div class="linha">
+        <input id="codigo" maxlength="6" spellcheck="false" placeholder="código" aria-label="Código da sala">
+        <button id="entrar">entrar</button>
+      </div>
+      <button id="solo" class="discreto">jogar sozinho (teste)</button>
+    </div>
+
+    <div id="etapaSala" hidden>
+      <div class="codigo">
+        <span>código da sala</span>
+        <strong id="codigoSala">-----</strong>
+        <button id="copiar" class="discreto">copiar link</button>
+      </div>
+      <ul id="jogadores"></ul>
+      <button id="pronto" class="principal">estou pronto</button>
+      <button id="comecar" class="principal destaque" hidden>começar</button>
+      <p id="aguarde" class="aguarde"></p>
+    </div>
+
+    <p id="erro" class="erro" role="alert"></p>
+    <p class="rodape">use fones de ouvido · <b>M</b> liga/desliga o som · <b>F2</b> painel de gravação<br><span id="modoRede"></span></p>
+  </div>
+</section>
+
+<!-- PAINEL DE GRAVAÇÃO (F2) -->
+<aside id="painel" hidden>
+  <header><strong>painel de gravação</strong><button id="fecharPainel">✕</button></header>
+  <p id="status"></p>
+  <h4>pular para</h4>
+  <div class="grade">
+    <button data-cmd="fase" data-val="p1">01 cuidar</button>
+    <button data-cmd="fase" data-val="p2">02 quarto</button>
+    <button data-cmd="fase" data-val="p3">03 dormir</button>
+    <button data-cmd="fase" data-val="p4">04 vigília</button>
+  </div>
+  <h4>eventos</h4>
+  <div class="grade">
+    <button data-cmd="euforia">100% (feliz demais)</button>
+    <button data-cmd="soRuins">só itens ruins</button>
+    <button data-cmd="quebra">faca (quebra)</button>
+    <button data-cmd="espelhoPronto">espelho pronto</button>
+    <button data-cmd="revelar">revelar espelho</button>
+    <button data-cmd="camaPronta">quarto pronto p/ dormir</button>
+    <button data-cmd="dormir">boa noite</button>
+    <button data-cmd="susto">susto aleatório (f3)</button>
+    <button data-cmd="chefe">inimigo difícil (f4)</button>
+    <button data-cmd="coisaFinal">coisa perto da cama</button>
+    <button data-cmd="transformar">transformação</button>
+    <button data-cmd="jumpscare">jumpscare</button>
+    <button data-cmd="reset" class="perigo">reiniciar tudo</button>
+  </div>
+  <label>felicidade <input type="range" min="0" max="100" id="felic"></label>
+  <label class="check"><input type="checkbox" id="areas"> mostrar áreas clicáveis (só pra você)</label>
+  <label class="check"><input type="checkbox" id="semHud"> esconder barra de felicidade</label>
+  <p class="dica">Os dois jogadores podem usar o painel. As mudanças valem para os dois.</p>
+</aside>
+
+<button id="denovo" hidden>jogar de novo</button>
+
+<script>window.VERSAO = 3;</script>
+<script src="js/config.js?v=3"></script>
+<script src="js/logica.js?v=3"></script>
+<script src="js/rede.js?v=3"></script>
+<script src="js/audio.js?v=3"></script>
+<script src="js/fx.js?v=3"></script>
+<script src="js/arte-quarto.js?v=3"></script>
+<script src="js/arte-guima.js?v=3"></script>
+<script src="js/arte-itens.js?v=3"></script>
+<script src="js/jogo.js?v=3"></script>
+</body>
+</html>

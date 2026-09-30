@@ -1,0 +1,10 @@
+{
+  "rules": {
+    "salas": {
+      "$sala": {
+        ".read": "auth != null",
+        ".write": "auth != null"
+      }
+    }
+  }
+}

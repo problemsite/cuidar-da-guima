@@ -1,0 +1,95 @@
+:root {
+  --fundo: #140d18;
+  --rosa: #ff8fb1;
+  --rosa-escuro: #d86a8f;
+  --texto: #fff2f6;
+  --suave: rgba(255, 235, 242, 0.7);
+  --vidro: rgba(30, 16, 30, 0.62);
+  --borda: rgba(255, 200, 220, 0.18);
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; overflow: hidden; background: #000; }
+body { font-family: 'Nunito', system-ui, sans-serif; color: var(--texto); user-select: none; -webkit-user-select: none; }
+[hidden] { display: none !important; }
+#palco { position: fixed; inset: 0; touch-action: none; }
+#tela, #tela2d { position: absolute; inset: 0; width: 100vw; height: 100vh; display: block; }
+
+/* ---------------- LOBBY ---------------- */
+#lobby {
+  position: fixed; inset: 0; display: flex; align-items: center; justify-content: flex-end;
+  padding: 4vh max(16px, 6vw); transition: opacity .9s ease;
+  background: linear-gradient(90deg, rgba(10, 5, 12, 0) 30%, rgba(10, 5, 12, 0.55) 70%);
+}
+#lobby.some { opacity: 0; pointer-events: none; }
+.cartao {
+  width: min(430px, 100%); padding: 38px 36px 26px; border-radius: 28px;
+  background: var(--vidro); border: 1px solid var(--borda);
+  backdrop-filter: blur(18px) saturate(1.2); -webkit-backdrop-filter: blur(18px) saturate(1.2);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.45);
+  user-select: text; -webkit-user-select: text;
+}
+.sobre { margin: 0 0 6px; font-weight: 800; font-size: 13px; letter-spacing: .28em; text-transform: uppercase; color: var(--rosa); }
+h1 { font-family: 'Baloo 2', 'Nunito', sans-serif; font-weight: 800; font-size: clamp(46px, 6vw, 64px); line-height: .92; margin: 0 0 14px; letter-spacing: -.01em; }
+h1 span { color: var(--rosa); }
+.intro { margin: 0 0 24px; color: var(--suave); line-height: 1.5; font-size: 15px; }
+label { display: block; font-size: 12px; font-weight: 800; letter-spacing: .18em; text-transform: uppercase; color: var(--suave); margin-bottom: 8px; }
+input {
+  width: 100%; padding: 13px 16px; border-radius: 14px; border: 1px solid var(--borda);
+  background: rgba(255, 255, 255, 0.07); color: var(--texto); font: 700 16px 'Nunito', sans-serif; outline: none;
+}
+input:focus { border-color: var(--rosa); background: rgba(255, 255, 255, 0.1); }
+input::placeholder { color: rgba(255, 230, 240, 0.35); }
+button {
+  font: 800 15px 'Nunito', sans-serif; color: var(--texto); cursor: pointer; border-radius: 14px;
+  border: 1px solid var(--borda); background: rgba(255, 255, 255, 0.08); padding: 12px 18px;
+  transition: transform .12s, background .2s, border-color .2s;
+}
+button:hover { background: rgba(255, 255, 255, 0.14); border-color: rgba(255, 200, 220, 0.4); }
+button:active { transform: scale(.97); }
+button.principal { width: 100%; margin-top: 14px; background: linear-gradient(180deg, #ff9dbb, #e8739a); border: none; color: #3a0f22; font-size: 17px; padding: 15px; box-shadow: 0 8px 24px rgba(232, 115, 154, 0.35); }
+button.principal:hover { filter: brightness(1.07); }
+button.destaque { background: linear-gradient(180deg, #9ff0c4, #5fd39a); color: #0d3322; box-shadow: 0 8px 24px rgba(95, 211, 154, 0.35); }
+button.discreto { background: none; border: none; color: var(--suave); padding: 10px 4px; font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
+.linha { display: flex; gap: 10px; margin-top: 12px; }
+.linha input { text-transform: uppercase; letter-spacing: .2em; }
+.linha button { flex: 0 0 auto; }
+#solo { display: block; margin: 10px auto 0; }
+.codigo { text-align: center; padding: 18px; border-radius: 18px; background: rgba(0, 0, 0, 0.25); border: 1px dashed var(--borda); }
+.codigo span { display: block; font-size: 12px; letter-spacing: .2em; text-transform: uppercase; color: var(--suave); font-weight: 800; }
+.codigo strong { display: block; font-family: 'Baloo 2', sans-serif; font-size: 52px; letter-spacing: .14em; line-height: 1.1; margin: 4px 0 0; color: #fff; }
+#jogadores { list-style: none; padding: 0; margin: 16px 0 0; }
+#jogadores li { display: flex; justify-content: space-between; padding: 11px 14px; border-radius: 12px; background: rgba(255, 255, 255, 0.06); margin-bottom: 6px; font-weight: 700; }
+#jogadores b { font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--suave); }
+#jogadores b.ok { color: #8ff0bd; }
+.aguarde { text-align: center; color: var(--suave); font-size: 14px; margin: 12px 0 0; min-height: 20px; }
+.erro { color: #ff9aa9; font-weight: 700; min-height: 20px; margin: 12px 0 0; font-size: 14px; }
+.rodape { margin: 16px 0 0; font-size: 12px; color: rgba(255, 230, 240, 0.45); line-height: 1.6; text-align: center; }
+.rodape b { color: rgba(255, 230, 240, 0.7); }
+
+/* ---------------- PAINEL F2 ---------------- */
+#painel {
+  position: fixed; top: 16px; right: 16px; width: 340px; max-height: calc(100vh - 32px); overflow: auto;
+  padding: 16px; border-radius: 18px; background: rgba(12, 8, 16, 0.88); border: 1px solid var(--borda);
+  backdrop-filter: blur(12px); z-index: 10; font-size: 13px; user-select: text;
+}
+#painel header { display: flex; justify-content: space-between; align-items: center; }
+#painel header button { padding: 4px 10px; }
+#painel h4 { margin: 14px 0 6px; font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--rosa); }
+#painel .grade { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+#painel .grade button { padding: 8px 6px; font-size: 12px; border-radius: 10px; }
+#painel .grade .perigo { grid-column: span 2; border-color: rgba(255, 120, 140, 0.5); color: #ffb3c0; }
+#painel label { margin-top: 12px; letter-spacing: .05em; text-transform: none; font-size: 13px; }
+#painel label.check { display: flex; gap: 8px; align-items: center; }
+#painel label.check input { width: auto; }
+#painel input[type=range] { padding: 0; width: 100%; }
+#status { color: var(--suave); font-family: ui-monospace, monospace; font-size: 11px; margin: 8px 0 0; }
+.dica { color: rgba(255, 230, 240, 0.45); font-size: 11px; }
+
+#denovo { position: fixed; left: 50%; bottom: 12vh; transform: translateX(-50%); z-index: 5; background: rgba(255, 255, 255, 0.08); }
+
+
+
+@media (max-width: 760px) {
+  #lobby { justify-content: center; background: rgba(10, 5, 12, 0.5); }
+  .cartao { padding: 28px 22px 20px; }
+}
