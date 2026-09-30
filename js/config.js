@@ -11,13 +11,15 @@ window.CONFIG = {
   //  conversam entre si (ótimo para testar), ou "Jogar sozinho".
   // ---------------------------------------------------------------
   firebase: {
-    apiKey: "",
-    authDomain: "",
-    databaseURL: "",
-    projectId: "",
-    storageBucket: "",
-    messagingSenderId: "",
-    appId: ""
+    apiKey: "AIzaSyC4V_QuMp-CXtDkmt6S8k9al3ir74JF6uU",
+    authDomain: "cuidar-da-guima.firebaseapp.com",
+    // endereço padrão do Realtime Database. Se ao criar o banco você escolheu outra região,
+    // copie o endereço que aparece no topo da aba "Dados" do Realtime Database e cole aqui.
+    databaseURL: "https://cuidar-da-guima-default-rtdb.firebaseio.com",
+    projectId: "cuidar-da-guima",
+    storageBucket: "cuidar-da-guima.firebasestorage.app",
+    messagingSenderId: "70112944015",
+    appId: "1:70112944015:web:990e9816e42e9bbca875fa"
   },
 
   // Pede tela cheia quando o jogador clica em PRONTO / COMEÇAR.
