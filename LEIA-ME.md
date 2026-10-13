@@ -6,16 +6,16 @@ Jogo de terror para dois jogadores. Tudo acontece no quarto da Guima, ninguém t
 
 - **Testar rápido:** dê dois cliques no `index.html`. Use **"jogar sozinho (teste)"** ou abra uma segunda aba do mesmo navegador para ser o 2º jogador (modo local).
 - **Com servidor no PC:** rode `iniciar-windows.bat` (precisa do Node.js). Abre em `http://localhost:8080`. Nesse modo os sons em arquivo funcionam.
-- **Pela internet (os dois em casas diferentes):** configure o Firebase (abaixo) e suba a pasta no GitHub Pages.
+- **Pela internet (os dois em casas diferentes):** suba a pasta no GitHub Pages e libere o jogo pela Central (abaixo).
 
-## Firebase (multiplayer online)
+## Trava e Firebase único
 
-1. No console do Firebase, crie um projeto com **Realtime Database** e ative **Authentication → Anônimo**.
-2. Em Authentication → Settings → Domínios autorizados, adicione `problemsite.github.io`.
-3. Em Realtime Database → Regras, cole o conteúdo de `regras-firebase.json`.
-4. Cole a configuração do app em `js/config.js`, no bloco `firebase`.
-
-Sem Firebase configurado, o jogo funciona no modo local (duas abas do mesmo navegador).
+- O jogo usa a **trava do site principal** (`/trava.js`) e o **Firebase único `jogos-github`**, como os outros sites. Não tem mais Firebase próprio nem regras para colar.
+- As salas ficam em `sites/cuidar-da-guima/salas`.
+- **Liberar/bloquear o jogo e a senha dos jogadores:** pela Central, como nos outros sites. Bloqueado, ninguém de fora abre nem consegue gravar nada.
+- **Primeira vez:** abra o jogo uma vez no navegador da equipe e clique em **criar sala**. Isso avisa a Central de que os jogadores podem gravar na pasta `salas`.
+- No navegador da equipe dá para testar com duas abas: cada aba vira um jogador diferente.
+- Aberto do PC (duplo clique no `index.html` ou `iniciar-windows.bat`) não tem trava: roda no modo local.
 
 ## As fases
 

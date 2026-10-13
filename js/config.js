@@ -5,22 +5,12 @@
 window.CONFIG = {
 
   // ---------------------------------------------------------------
-  //  FIREBASE (multiplayer pela internet)
-  //  Cole aqui a configuração do seu projeto (Realtime Database + Auth anônima).
-  //  Se ficar vazio, o jogo roda no MODO LOCAL: duas abas do mesmo navegador
-  //  conversam entre si (ótimo para testar), ou "Jogar sozinho".
+  //  FIREBASE: usa o Firebase único "jogos-github". A configuração vem da
+  //  trava do site principal (problemsite.github.io/trava.js), carregada no
+  //  index.html. As salas ficam em sites/cuidar-da-guima/salas.
+  //  Aberto do PC (arquivo ou iniciar-windows.bat) não tem trava: o jogo roda
+  //  no MODO LOCAL (duas abas do mesmo navegador) ou "jogar sozinho".
   // ---------------------------------------------------------------
-  firebase: {
-    apiKey: "AIzaSyC4V_QuMp-CXtDkmt6S8k9al3ir74JF6uU",
-    authDomain: "cuidar-da-guima.firebaseapp.com",
-    // endereço padrão do Realtime Database. Se ao criar o banco você escolheu outra região,
-    // copie o endereço que aparece no topo da aba "Dados" do Realtime Database e cole aqui.
-    databaseURL: "https://cuidar-da-guima-default-rtdb.firebaseio.com",
-    projectId: "cuidar-da-guima",
-    storageBucket: "cuidar-da-guima.firebasestorage.app",
-    messagingSenderId: "70112944015",
-    appId: "1:70112944015:web:990e9816e42e9bbca875fa"
-  },
 
   // Pede tela cheia quando o jogador clica em PRONTO / COMEÇAR.
   telaCheia: true,

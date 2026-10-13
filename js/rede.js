@@ -1,10 +1,15 @@
 // =====================================================================
-//  REDE — Firebase (internet) ou modo local (duas abas do mesmo navegador)
+//  REDE — Firebase único "jogos-github" (pela trava do site principal)
+//  ou modo local (duas abas do mesmo navegador).
+//  No GitHub Pages a trava (/trava.js) carrega o Firebase e decide se o
+//  jogo está liberado. Aberto do PC (arquivo ou localhost) não tem trava,
+//  então o jogo roda no modo local.
 // =====================================================================
 (function () {
   const G = (window.G = window.G || {});
-  const C = window.CONFIG;
-  const temFirebase = !!(C.firebase && C.firebase.apiKey && C.firebase.databaseURL);
+  const SITE = 'cuidar-da-guima';
+  const ESCRITA = { salas: true }; // pastas que os jogadores podem gravar
+  const temTrava = !!(window.Trava && window.Trava.ready);
 
   const gerarCodigo = () => {
     const s = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -18,14 +23,6 @@
     if (!id) { id = 'j' + Math.random().toString(36).slice(2, 10); try { sessionStorage.setItem('guimaPid', id); } catch (e) {} }
     return id;
   })();
-
-  function carregarScript(src) {
-    return new Promise((ok, erro) => {
-      const s = document.createElement('script');
-      s.src = src; s.onload = ok; s.onerror = () => erro(new Error('Falha ao carregar ' + src));
-      document.head.appendChild(s);
-    });
-  }
 
   // callbacks comuns
   function base() {
@@ -107,24 +104,35 @@
   }
 
   // -------------------------------------------------------------------
-  //  FIREBASE (Realtime Database + Auth anônima)
+  //  FIREBASE ÚNICO (Realtime Database, pasta sites/cuidar-da-guima)
   // -------------------------------------------------------------------
   function redeFirebase() {
     const R = base();
     R.modo = 'firebase';
-    let db = null, salaRef = null;
-    const V = '10.12.2';
+    let db = null, salaRef = null, raiz = '';
+    const salaPath = (code) => raiz + '/salas/' + code;
     R.iniciar = async () => {
-      await carregarScript(`https://www.gstatic.com/firebasejs/${V}/firebase-app-compat.js`);
-      await carregarScript(`https://www.gstatic.com/firebasejs/${V}/firebase-auth-compat.js`);
-      await carregarScript(`https://www.gstatic.com/firebasejs/${V}/firebase-database-compat.js`);
-      firebase.initializeApp(C.firebase);
-      const cred = await firebase.auth().signInAnonymously();
-      R.pid = cred.user.uid;
+      const t = await window.Trava.ready;
+      if (!t || !window.firebase || !firebase.apps.length) throw new Error('a trava não carregou o Firebase.');
+      if (!t.open && !t.admin) throw new Error('O jogo está bloqueado no momento.');
+      const auth = firebase.auth();
+      if (!auth.currentUser) await auth.signInAnonymously();
+      // R.pid continua sendo o id desta aba: assim duas abas do mesmo navegador
+      // (inclusive o navegador da equipe) viram dois jogadores diferentes.
       db = firebase.database();
+      raiz = window.DB_ROOT || 'sites/' + SITE;
+      // navegador da equipe: avisa a Central quais pastas os jogadores podem gravar
+      if (window.Trava.admin) {
+        try {
+          const ref = db.ref('controle/sites/' + SITE);
+          const cur = (await ref.get()).val();
+          if (!cur) await ref.set({ open: false, escrita: ESCRITA, t: firebase.database.ServerValue.TIMESTAMP });
+          else if (!cur.escrita || !cur.escrita.salas) await ref.child('escrita/salas').set(true);
+        } catch (e) { console.warn('[guima] controle', e); }
+      }
     };
     function ouvir(code) {
-      salaRef = db.ref('salas/' + code);
+      salaRef = db.ref(salaPath(code));
       const eu = salaRef.child('jogadores/' + R.pid);
       eu.child('on').onDisconnect().set(false);
       eu.child('on').set(true);
@@ -146,11 +154,11 @@
       let code;
       for (let i = 0; i < 6; i++) {
         code = gerarCodigo();
-        const ex = await db.ref('salas/' + code + '/meta').get();
+        const ex = await db.ref(salaPath(code) + '/meta').get();
         if (!ex.exists()) break;
       }
       R.code = code; R.host = true;
-      await db.ref('salas/' + code).set({
+      await db.ref(salaPath(code)).set({
         meta: { host: R.pid, comecou: false, solo: !!solo, criada: firebase.database.ServerValue.TIMESTAMP },
         jogadores: { [R.pid]: { nome, pronto: false, on: true } },
       });
@@ -159,13 +167,13 @@
     };
     R.entrar = async (code, nome) => {
       code = code.toUpperCase();
-      const snap = await db.ref('salas/' + code).get();
+      const snap = await db.ref(salaPath(code)).get();
       if (!snap.exists()) throw new Error('Sala não encontrada.');
       const v = snap.val();
       const jog = v.jogadores || {};
       if (!jog[R.pid] && Object.keys(jog).length >= 2) throw new Error('A sala já tem dois jogadores.');
       if (!jog[R.pid] && v.meta && v.meta.comecou) throw new Error('A partida já começou.');
-      await db.ref(`salas/${code}/jogadores/${R.pid}`).update({ nome, on: true, pronto: jog[R.pid] ? !!jog[R.pid].pronto : false });
+      await db.ref(salaPath(code) + '/jogadores/' + R.pid).update({ nome, on: true, pronto: jog[R.pid] ? !!jog[R.pid].pronto : false });
       R.code = code;
       R.host = v.meta && v.meta.host === R.pid;
       ouvir(code);
@@ -190,6 +198,6 @@
     return R;
   }
 
-  G.Rede = temFirebase ? redeFirebase() : redeLocal();
+  G.Rede = temTrava ? redeFirebase() : redeLocal();
   if (!G.Rede.iniciar) G.Rede.iniciar = async () => {};
 })();
