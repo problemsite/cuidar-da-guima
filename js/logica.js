@@ -420,7 +420,9 @@
   function hpAmeaca(S, kk, k) {
     const base = { rastejante: 2, pendurada: 3 }[kk] || LAY.ameacas[kk].hp;
     if (S.duo) return base * 2 + Math.floor(k * 3);
-    return base + (k > 0.55 ? 1 : 0);
+    // sozinho: menos vida (configurável em fase4.vidaSombrasSolo)
+    const m = C.fase4.vidaSombrasSolo == null ? 0.6 : C.fase4.vidaSombrasSolo;
+    return Math.max(1, Math.round(base * m));
   }
   function tick4(S, now, dt) {
     const p = S.p4, g = S.g, c = C.fase4;
@@ -444,7 +446,7 @@
       // novas sombras
       if (now >= p.nextThreat) {
         const ativos = p.threats.map((t) => t.k);
-        const maxA = Math.round(lerp(2, 6, k)) - (chefe ? 1 : 0);
+        const maxA = Math.round(lerp(2, S.duo ? 6 : c.maxSombrasSolo || 4, k)) - (chefe ? 1 : 0);
         let opcoes = TIPOS_FIXOS.filter((t) => !ativos.includes(t));
         if (k > 0.15 && !ativos.includes('rastejante')) opcoes.push('rastejante', 'rastejante');
         if (k > 0.35 && !ativos.includes('pendurada')) opcoes.push('pendurada', 'pendurada');

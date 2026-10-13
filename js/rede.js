@@ -10,6 +10,7 @@
   const SITE = 'cuidar-da-guima';
   const ESCRITA = { salas: true }; // pastas que os jogadores podem gravar
   const temTrava = !!(window.Trava && window.Trava.ready);
+  const FECHADO = 'O jogo não está aberto agora. Tente de novo mais tarde.';
 
   const gerarCodigo = () => {
     const s = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -41,9 +42,10 @@
   // -------------------------------------------------------------------
   //  MODO LOCAL (BroadcastChannel)
   // -------------------------------------------------------------------
-  function redeLocal() {
-    const R = base();
+  function redeLocal(R) {
+    R = R || base();
     R.modo = 'local';
+    R.iniciar = async () => {};
     let canal = null;
     const conectar = (code) => {
       if (canal) canal.close();
@@ -113,8 +115,8 @@
     const salaPath = (code) => raiz + '/salas/' + code;
     R.iniciar = async () => {
       const t = await window.Trava.ready;
-      if (!t || !window.firebase || !firebase.apps.length) throw new Error('a trava não carregou o Firebase.');
-      if (!t.open && !t.admin) throw new Error('O jogo está bloqueado no momento.');
+      if (!t || !window.firebase || !firebase.apps.length) { console.warn('[guima] trava sem Firebase'); throw new Error('Não foi possível conectar. Recarregue a página.'); }
+      if (!t.open && !t.admin) throw new Error(FECHADO);
       const auth = firebase.auth();
       if (!auth.currentUser) await auth.signInAnonymously();
       // R.pid continua sendo o id desta aba: assim duas abas do mesmo navegador
@@ -129,12 +131,43 @@
           if (!cur) await ref.set({ open: false, escrita: ESCRITA, t: firebase.database.ServerValue.TIMESTAMP });
           else if (!cur.escrita || !cur.escrita.salas) await ref.child('escrita/salas').set(true);
         } catch (e) { console.warn('[guima] controle', e); }
+      } else {
+        // jogador comum: se a pasta "salas" ainda não foi liberada para gravação, avisa com clareza
+        let ctl = null;
+        try { ctl = (await db.ref('controle/sites/' + SITE).get()).val(); } catch (e) {}
+        if (ctl && !(ctl.escrita && ctl.escrita.salas)) {
+          console.warn('[guima] a pasta "salas" não está liberada para gravação (controle/sites/' + SITE + '/escrita/salas).');
+          throw new Error(FECHADO);
+        }
       }
+      limparSalasVazias();
     };
+
+    // Apaga salas antigas sem ninguém (todo mundo saiu há mais de 10 min),
+    // e qualquer sala com mais de 12 horas.
+    async function limparSalasVazias() {
+      try {
+        const agora = Date.now() + ((await db.ref('.info/serverTimeOffset').get()).val() || 0);
+        const todas = (await db.ref(raiz + '/salas').get()).val() || {};
+        Object.entries(todas).forEach(([code, v]) => {
+          const meta = (v && v.meta) || {};
+          const jog = Object.values((v && v.jogadores) || {});
+          const ninguem = !jog.some((j) => j && j.on);
+          const ultima = Math.max(meta.criada || 0, ...jog.map((j) => (j && j.saiu) || 0));
+          const velha = meta.criada && agora - meta.criada > 12 * 3600e3;
+          if ((ninguem && agora - ultima > 10 * 60e3) || velha || !jog.length)
+            db.ref(raiz + '/salas/' + code).remove().catch(() => {});
+        });
+      } catch (e) { console.warn('[guima] limpeza', e); }
+    }
+    // "jogar sozinho": troca para o modo local (nada é gravado online)
+    R.usarLocal = () => { redeLocal(R); delete R.usarLocal; };
+    const amigavel = (e) => /permission/i.test((e && (e.code || e.message)) || '') ? new Error(FECHADO) : e;
     function ouvir(code) {
       salaRef = db.ref(salaPath(code));
       const eu = salaRef.child('jogadores/' + R.pid);
-      eu.child('on').onDisconnect().set(false);
+      // ao sair (fechar a aba / cair), marca offline e a hora; salas vazias são apagadas depois
+      eu.onDisconnect().update({ on: false, saiu: firebase.database.ServerValue.TIMESTAMP });
       eu.child('on').set(true);
       let meta = {}, jog = {};
       const emitir = () => R._sala({ host: meta.host, comecou: !!meta.comecou, solo: !!meta.solo, jogadores: jog });
@@ -150,7 +183,9 @@
         if (v) R._acao(v.pid, v.a);
       });
     }
-    R.criar = async (nome, solo) => {
+    R.criar = (nome, solo) => criar(nome, solo).catch((e) => { throw amigavel(e); });
+    R.entrar = (code, nome) => entrar(code, nome).catch((e) => { throw amigavel(e); });
+    async function criar(nome, solo) {
       let code;
       for (let i = 0; i < 6; i++) {
         code = gerarCodigo();
@@ -164,8 +199,8 @@
       });
       ouvir(code);
       return { code };
-    };
-    R.entrar = async (code, nome) => {
+    }
+    async function entrar(code, nome) {
       code = code.toUpperCase();
       const snap = await db.ref(salaPath(code)).get();
       if (!snap.exists()) throw new Error('Sala não encontrada.');
@@ -178,7 +213,7 @@
       R.host = v.meta && v.meta.host === R.pid;
       ouvir(code);
       return { code, estado: v.estado || null };
-    };
+    }
     R.pronto = (val) => salaRef && salaRef.child('jogadores/' + R.pid + '/pronto').set(!!val);
     R.comecar = () => salaRef && salaRef.child('meta/comecou').set(true);
     R.voltarLobby = async () => {

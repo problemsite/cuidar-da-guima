@@ -61,7 +61,6 @@
   //  LOBBY
   // =================================================================
   const lobby = $('lobby');
-  $('modoRede').textContent = Rede.modo === 'firebase' ? 'online (Firebase)' : 'modo local — abra outra aba para o 2º jogador';
   try { $('nome').value = localStorage.getItem('guimaNome') || ''; } catch (e) {}
   const salaURL = new URLSearchParams(location.search).get('sala');
   if (salaURL) $('codigo').value = salaURL.toUpperCase();
@@ -82,7 +81,7 @@
 
   async function preparar() {
     try { await Rede.iniciar(); }
-    catch (e) { erro('Não foi possível conectar ao Firebase: ' + e.message); throw e; }
+    catch (e) { throw e; }
   }
   let preparado = null;
 
@@ -114,9 +113,10 @@
     const n = pegarNome() || 'Jogador'; meuNome = n; erro('');
     telaCheia();
     try {
-      preparado = preparado || preparar(); await preparado;
+      // sozinho: roda só neste navegador, sem criar sala online
+      if (Rede.usarLocal) Rede.usarLocal();
       const r = await Rede.criar(n, true);
-      entrouNaSala(r.code);
+      entrouNaSala(r.code, true);
       Rede.pronto(true);
       comecarPartida();
     } catch (e) { erro(e.message); }
@@ -134,11 +134,11 @@
     setTimeout(() => ($('copiar').textContent = 'copiar link'), 1600);
   };
 
-  function entrouNaSala(code) {
+  function entrouNaSala(code, solo) {
     $('etapaEntrar').hidden = true;
     $('etapaSala').hidden = false;
     $('codigoSala').textContent = code;
-    history.replaceState(null, '', '?sala=' + code);
+    if (!solo) history.replaceState(null, '', '?sala=' + code);
   }
 
   Rede.onSala((s) => {

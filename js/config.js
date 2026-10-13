@@ -53,7 +53,11 @@ window.CONFIG = {
     acordarIntervalo: [10000, 3600], // intervalo entre "abrir os olhos" (começo -> fim)
     // inimigo difícil: aparece 3 vezes (em que ponto da vigília), vida e tempo até chegar na cama
     chefeEm: [0.22, 0.5, 0.78],
-    chefeVidaSolo: [25, 35, 45],
+    chefeVidaSolo: [12, 16, 20],     // jogando sozinho: bem menos vida
+    // jogando sozinho: vida das sombras (multiplica; 0.6 = 60%, mínimo 1 clique)
+    // e no máximo quantas sombras ao mesmo tempo
+    vidaSombrasSolo: 0.6,
+    maxSombrasSolo: 4,
     chefeVidaDupla: [120, 170, 220],
     chefeDuracao: [32000, 29000, 26000],
   },
